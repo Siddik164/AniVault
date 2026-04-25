@@ -76,6 +76,7 @@ let isLoginMode = true;
 
 // Initialize
 async function init() {
+    setupBulkListeners();
     try {
         await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     } catch (e) { console.warn("Persistence error:", e); }
@@ -308,6 +309,7 @@ function setupEventListeners() {
             else if (view === 'settings') renderPersonalizationView();
             else if (view === 'genres') renderGenresView();
             else if (view === 'admin') renderAdminView();
+            else if (view === 'vault') renderVaultView();
             
             closeDrawer();
         });
@@ -726,6 +728,45 @@ function renderChatMessages(chatDB) {
 }
 
 
+let currentVaultTab = 'all';
+
+function renderVaultView() {
+    viewContent.innerHTML = `
+        <div class="hero-section" style="margin-bottom: 1.5rem;">
+            <h2>Your Vault</h2>
+            <p>Manage your anime tracking list.</p>
+        </div>
+        
+        <div class="vault-tabs" style="display: flex; gap: 1rem; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 0.5rem;">
+            <button class="vault-tab btn ${currentVaultTab === 'all' ? 'btn-primary' : 'btn-secondary'}" data-tab="all">All</button>
+            <button class="vault-tab btn ${currentVaultTab === 'watching' ? 'btn-primary' : 'btn-secondary'}" data-tab="watching">Watching</button>
+            <button class="vault-tab btn ${currentVaultTab === 'watched' ? 'btn-primary' : 'btn-secondary'}" data-tab="watched">Watched</button>
+            <button class="vault-tab btn ${currentVaultTab === 'plan_to_watch' ? 'btn-primary' : 'btn-secondary'}" data-tab="plan_to_watch">Plan to Watch</button>
+        </div>
+        
+        <div class="grid" id="anime-grid"></div>
+    `;
+
+    document.querySelectorAll('.vault-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            currentVaultTab = e.target.dataset.tab;
+            renderVaultView();
+        });
+    });
+
+    let displayList = state.myList;
+    if (currentVaultTab !== 'all') {
+        displayList = state.myList.filter(item => item.listStatus === currentVaultTab);
+    }
+    
+    const grid = document.getElementById('anime-grid');
+    if (displayList.length === 0) {
+        grid.innerHTML = `<div class="no-results" style="grid-column: 1/-1;">No anime found in this category.</div>`;
+    } else {
+        renderGrid(displayList, grid);
+    }
+}
+
 // API Calls
 async function fetchTopAnime(page = 1) {
     const grid = document.getElementById('anime-grid');
@@ -780,8 +821,11 @@ async function searchAnime(query) {
     }
 }
 
+let currentGridAnime = [];
+
 // Rendering
 function renderGrid(animeArray, container) {
+    currentGridAnime = animeArray;
     container.innerHTML = '';
     animeArray.forEach((anime, index) => {
         const card = document.createElement('div');
@@ -797,8 +841,11 @@ function renderGrid(animeArray, container) {
         const listItem = state.myList.find(item => item.id == id);
         const listBadgeHtml = listItem ? `<div class="score-badge" style="top:auto; bottom:10px; right:10px; background:var(--accent-primary)">✓ ${formatListType(listItem.listStatus)}</div>` : '';
 
+        const checkboxHtml = `<div class="bulk-checkbox-container" style="position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); border-radius: 4px; padding: 4px; display: flex; align-items: center; justify-content: center;"><input type="checkbox" class="bulk-checkbox" data-id="${id}" style="transform: scale(1.5); cursor: pointer; margin: 0;"></div>`;
+
         card.innerHTML = `
-            <div class="card-img-container">
+            <div class="card-img-container" style="position: relative;">
+                ${checkboxHtml}
                 <img src="${imageUrl}" alt="${title}" loading="lazy">
                 <div class="score-badge">★ ${score}</div>
                 ${listBadgeHtml}
@@ -812,6 +859,12 @@ function renderGrid(animeArray, container) {
             </div>
         `;
         
+        const checkbox = card.querySelector('.bulk-checkbox');
+        checkbox.addEventListener('click', (e) => e.stopPropagation());
+        checkbox.addEventListener('change', () => {
+            if (typeof updateGlobalBulkPanel === 'function') updateGlobalBulkPanel();
+        });
+
         card.addEventListener('click', () => showAnimeDetails(id, anime));
         container.appendChild(card);
     });
@@ -984,11 +1037,108 @@ function updateAnimeList(id, animeData, newStatus) {
     // Just refresh the background grid if needed
     if (state.currentView === 'discover') renderDiscoverView();
     else if (state.currentView === 'genres') fetchAnimeByGenre(currentGenreId);
+    else if (state.currentView === 'vault') renderVaultView();
 }
 
 function hideModal() {
     modal.classList.add('hidden');
     setTimeout(() => { if (modal.classList.contains('hidden')) modalBody.innerHTML = ''; }, 300);
+}
+
+// Global Bulk Action Logic
+function updateGlobalBulkPanel() {
+    if (!state.currentUser) return;
+
+    const checkedBoxes = document.querySelectorAll('.bulk-checkbox:checked');
+    const panel = document.getElementById('global-bulk-panel');
+    const countDisplay = document.getElementById('global-bulk-count');
+    const applyBtn = document.getElementById('global-bulk-apply');
+    const select = document.getElementById('global-bulk-status');
+    
+    if (!panel) return;
+    
+    if (checkedBoxes.length > 0) {
+        panel.classList.remove('hidden');
+        countDisplay.textContent = `${checkedBoxes.length} Selected`;
+        applyBtn.disabled = !select.value;
+    } else {
+        panel.classList.add('hidden');
+        select.value = "";
+    }
+}
+
+function setupBulkListeners() {
+    const select = document.getElementById('global-bulk-status');
+    const applyBtn = document.getElementById('global-bulk-apply');
+    const cancelBtn = document.getElementById('global-bulk-cancel');
+    
+    if (!select) return;
+
+    select.addEventListener('change', () => {
+        applyBtn.disabled = !select.value;
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
+        updateGlobalBulkPanel();
+    });
+
+    applyBtn.addEventListener('click', () => {
+        const newStatus = select.value;
+        if (!newStatus) return;
+
+        const checkedBoxes = document.querySelectorAll('.bulk-checkbox:checked');
+        if (checkedBoxes.length === 0) return;
+
+        let hasChanges = false;
+        checkedBoxes.forEach(cb => {
+            const id = cb.dataset.id;
+            const existingIndex = state.myList.findIndex(item => item.id == id);
+            
+            if (newStatus === 'none') {
+                if (existingIndex !== -1) {
+                    state.myList.splice(existingIndex, 1);
+                    hasChanges = true;
+                }
+            } else {
+                if (existingIndex !== -1) {
+                    if (state.myList[existingIndex].listStatus !== newStatus) {
+                        state.myList[existingIndex].listStatus = newStatus;
+                        hasChanges = true;
+                    }
+                } else {
+                    const animeData = currentGridAnime.find(a => (a.mal_id || a.id) == id);
+                    if (animeData) {
+                        state.myList.push({
+                            id: id,
+                            title: animeData.title || 'Unknown',
+                            imageUrl: animeData.images?.jpg?.image_url || animeData.imageUrl,
+                            rating: animeData.score || animeData.rating || 'N/A',
+                            listStatus: newStatus,
+                            type: animeData.type || 'TV',
+                            year: animeData.year || (animeData.aired?.prop?.from?.year) || '',
+                            genres: animeData.genres || []
+                        });
+                        hasChanges = true;
+                    }
+                }
+            }
+        });
+
+        if (hasChanges) {
+            saveList();
+            document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
+            updateGlobalBulkPanel();
+            
+            if (state.currentView === 'discover') renderDiscoverView();
+            else if (state.currentView === 'genres') fetchAnimeByGenre(currentGenreId);
+            else if (state.currentView === 'vault') renderVaultView();
+            else {
+                 const grid = document.getElementById('anime-grid');
+                 if (grid) renderGrid(currentGridAnime, grid);
+            }
+        }
+    });
 }
 
 init();
@@ -1054,7 +1204,8 @@ function initLiveBackground() {
     function initParticles() {
         particles = [];
         // Dynamically adjust particle count based on screen size for performance
-        const numParticles = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 10000), 150);
+        // Slightly reduced density for better optimization
+        const numParticles = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 12000), 100);
         for (let i = 0; i < numParticles; i++) {
             particles.push(new Particle());
         }
@@ -1090,136 +1241,17 @@ function initLiveBackground() {
         }
         
         // Faint lines between nearby particles for a "constellation" effect
+        // Optimized with squared distance instead of Math.sqrt
         ctx.lineWidth = 0.5;
         for (let i = 0; i < particles.length; i++) {
             for (let j = i + 1; j < particles.length; j++) {
                 const dx = particles[i].x - particles[j].x;
                 const dy = particles[i].y - particles[j].y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+                const distSq = dx * dx + dy * dy;
                 
-                if (distance < 100) {
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 - distance / 1000})`;
-                    ctx.beginPath();
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.stroke();
-                }
-            }
-        }
-
-        requestAnimationFrame(animate);
-    }
-    
-    animate();
-}
-
-// Start background
-initLiveBackground();
-// Live Background Animation
-function initLiveBackground() {
-    const canvas = document.getElementById('live-bg');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    
-    let width, height;
-    let particles = [];
-    
-    function resize() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-    }
-    
-    window.addEventListener('resize', resize);
-    resize();
-    
-    class Particle {
-        constructor() {
-            this.x = Math.random() * width;
-            this.y = Math.random() * height;
-            this.size = Math.random() * 2 + 0.5;
-            this.speedX = Math.random() * 1 - 0.5;
-            this.speedY = Math.random() * 1 - 0.5;
-            this.life = Math.random() * 100 + 50;
-            
-            // Theme accent colors: Primary (#a154f2) and Secondary (#ff4785)
-            const isPink = Math.random() > 0.5;
-            this.color = isPink ? `rgba(255, 71, 133, ${Math.random() * 0.5 + 0.2})` : `rgba(161, 84, 242, ${Math.random() * 0.5 + 0.2})`;
-        }
-        
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            
-            if (this.x < 0) this.x = width;
-            if (this.x > width) this.x = 0;
-            if (this.y < 0) this.y = height;
-            if (this.y > height) this.y = 0;
-            
-            this.life -= 0.5;
-            if (this.life <= 0) {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.life = Math.random() * 100 + 50;
-            }
-        }
-        
-        draw() {
-            ctx.fillStyle = this.color;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
-    
-    function initParticles() {
-        particles = [];
-        // Dynamically adjust particle count based on screen size for performance
-        const numParticles = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 10000), 150);
-        for (let i = 0; i < numParticles; i++) {
-            particles.push(new Particle());
-        }
-    }
-    
-    // Re-init particles on significant resize
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(initParticles, 300);
-    });
-    
-    initParticles();
-    
-    let time = 0;
-    function animate() {
-        ctx.clearRect(0, 0, width, height);
-        
-        // Subtle moving aurora gradient effect
-        time += 0.005;
-        const xOffset = Math.sin(time) * 100;
-        let gradient = ctx.createLinearGradient(0 + xOffset, 0, width - xOffset, height);
-        gradient.addColorStop(0, 'rgba(161, 84, 242, 0.08)');
-        gradient.addColorStop(0.5, 'transparent');
-        gradient.addColorStop(1, 'rgba(255, 71, 133, 0.08)');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-
-        // Draw and update particles
-        for (let i = 0; i < particles.length; i++) {
-            particles[i].update();
-            particles[i].draw();
-        }
-        
-        // Optional: Draw faint lines between nearby particles for a "constellation" effect
-        ctx.lineWidth = 0.5;
-        for (let i = 0; i < particles.length; i++) {
-            for (let j = i + 1; j < particles.length; j++) {
-                const dx = particles[i].x - particles[j].x;
-                const dy = particles[i].y - particles[j].y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance < 100) {
+                // 100 * 100 = 10000
+                if (distSq < 10000) {
+                    const distance = Math.sqrt(distSq);
                     ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 - distance / 1000})`;
                     ctx.beginPath();
                     ctx.moveTo(particles[i].x, particles[i].y);
