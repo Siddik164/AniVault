@@ -352,7 +352,7 @@ function renderDiscoverView() {
             </button>
         </div>
         <div class="grid" id="anime-grid"></div>
-        <div class="pagination-controls" style="display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-top: 3rem; padding-bottom: 2rem;">
+        <div class="pagination-controls" style="display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-top: 3rem; padding-bottom: 8rem;">
             <button class="btn btn-secondary" id="prev-page-btn" ${discoverPage <= 1 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>Previous Page</button>
             <span style="font-weight: 800; font-size: 1.1rem; color: var(--text-main);">Page <span style="color: var(--accent-primary);">${discoverPage}</span></span>
             <button class="btn btn-primary" id="next-page-btn">Next Page</button>
@@ -841,7 +841,7 @@ function renderGrid(animeArray, container) {
         const listItem = state.myList.find(item => item.id == id);
         const listBadgeHtml = listItem ? `<div class="score-badge" style="top:auto; bottom:10px; right:10px; background:var(--accent-primary)">✓ ${formatListType(listItem.listStatus)}</div>` : '';
 
-        const checkboxHtml = `<div class="bulk-checkbox-container" style="position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); border-radius: 4px; padding: 4px; display: flex; align-items: center; justify-content: center;"><input type="checkbox" class="bulk-checkbox" data-id="${id}" style="transform: scale(1.5); cursor: pointer; margin: 0;"></div>`;
+        const checkboxHtml = `<div class="bulk-checkbox-container" style="position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); border-radius: 4px; padding: 4px; display: flex; align-items: center; justify-content: center;"><input type="checkbox" class="bulk-checkbox" data-id="${id}" style="transform: scale(1.5); cursor: pointer; margin: 0; accent-color: var(--accent-primary);"></div>`;
 
         card.innerHTML = `
             <div class="card-img-container" style="position: relative;">
