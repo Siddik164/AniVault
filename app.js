@@ -90,6 +90,7 @@ const state = {
 let currentFetchId = 0;
 let discoverPage = 1;
 let currentGenreId = null;
+const bulkSelectedAnime = new Map();
 
 // DOM Elements
 const searchInput = document.getElementById('search-input');
@@ -380,7 +381,10 @@ function setupEventListeners() {
             else if (view === 'badges') renderBadgesView();
             
             const bulkPanel = document.getElementById('global-bulk-panel');
-            if (bulkPanel) bulkPanel.classList.add('hidden');
+            if (bulkPanel) {
+                bulkSelectedAnime.clear();
+                bulkPanel.classList.add('hidden');
+            }
             
             closeDrawer();
         });
@@ -1393,8 +1397,16 @@ function renderGrid(animeArray, container) {
         `;
         const checkbox = card.querySelector('.bulk-checkbox');
         if (checkbox) {
+            if (bulkSelectedAnime.has(id.toString())) {
+                checkbox.checked = true;
+            }
             checkbox.addEventListener('click', (e) => e.stopPropagation());
-            checkbox.addEventListener('change', () => {
+            checkbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    bulkSelectedAnime.set(id.toString(), anime);
+                } else {
+                    bulkSelectedAnime.delete(id.toString());
+                }
                 if (typeof updateGlobalBulkPanel === 'function') updateGlobalBulkPanel();
             });
         }
@@ -1583,7 +1595,7 @@ function hideModal() {
 function updateGlobalBulkPanel() {
     if (!state.currentUser) return;
 
-    const checkedBoxes = document.querySelectorAll('.bulk-checkbox:checked');
+    const count = bulkSelectedAnime.size;
     const panel = document.getElementById('global-bulk-panel');
     const countDisplay = document.getElementById('global-bulk-count');
     const applyBtn = document.getElementById('global-bulk-apply');
@@ -1591,9 +1603,9 @@ function updateGlobalBulkPanel() {
     
     if (!panel) return;
     
-    if (checkedBoxes.length > 0) {
+    if (count > 0) {
         panel.classList.remove('hidden');
-        countDisplay.textContent = `${checkedBoxes.length} Selected`;
+        countDisplay.textContent = `${count} Selected`;
         applyBtn.disabled = !select.value;
     } else {
         panel.classList.add('hidden');
@@ -1613,6 +1625,7 @@ function setupBulkListeners() {
     });
 
     cancelBtn.addEventListener('click', () => {
+        bulkSelectedAnime.clear();
         document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
         updateGlobalBulkPanel();
     });
@@ -1621,12 +1634,11 @@ function setupBulkListeners() {
         const newStatus = select.value;
         if (!newStatus) return;
 
-        const checkedBoxes = document.querySelectorAll('.bulk-checkbox:checked');
-        if (checkedBoxes.length === 0) return;
+        if (bulkSelectedAnime.size === 0) return;
 
         let hasChanges = false;
-        checkedBoxes.forEach(cb => {
-            const id = cb.dataset.id;
+        bulkSelectedAnime.forEach((animeData, idStr) => {
+            const id = parseInt(idStr, 10) || idStr;
             const existingIndex = state.myList.findIndex(item => item.id == id);
             
             if (newStatus === 'none') {
@@ -1641,7 +1653,6 @@ function setupBulkListeners() {
                         hasChanges = true;
                     }
                 } else {
-                    const animeData = currentGridAnime.find(a => (a.mal_id || a.id) == id);
                     if (animeData) {
                         state.myList.push({
                             id: id,
@@ -1661,6 +1672,7 @@ function setupBulkListeners() {
 
         if (hasChanges) {
             saveList();
+            bulkSelectedAnime.clear();
             document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
             updateGlobalBulkPanel();
             
