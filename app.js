@@ -16,20 +16,68 @@ let usersDB = {};
 let allUsersLists = {}; // To store everyone's list for the social features
 
 // Extended Working Avatars (Using Anilist CDN for reliable hotlinking)
-const animeAvatars = [
-    "https://s4.anilist.co/file/anilistcdn/character/large/b40-qx20f5uWvJ8U.png", // Luffy
-    "https://s4.anilist.co/file/anilistcdn/character/large/b62-nluA6tNlOQEI.png", // Zoro
-    "https://s4.anilist.co/file/anilistcdn/character/large/b17-81Q1y0280sV7.png", // Naruto
-    "https://s4.anilist.co/file/anilistcdn/character/large/b45627-1KqSntI4kXfA.png", // Levi
-    "https://s4.anilist.co/file/anilistcdn/character/large/b128336-1eH83nNqfV70.jpg", // Gojo
-    "https://s4.anilist.co/file/anilistcdn/character/large/b127518-nJ1Q9IerM3y6.jpg", // Nezuko
-    "https://s4.anilist.co/file/anilistcdn/character/large/b126071-0A861lB7Qp05.png", // Tanjiro
-    "https://s4.anilist.co/file/anilistcdn/character/large/b27-L1d3h65p7K8A.png", // Killua
-    "https://s4.anilist.co/file/anilistcdn/character/large/b11-R2D2Kx6uL3qg.png", // Edward Elric
-    "https://s4.anilist.co/file/anilistcdn/character/large/b85-gDXXr92U2Irt.png", // Kakashi
-    "https://s4.anilist.co/file/anilistcdn/character/large/b71-sBf1j1L92g42.png", // Light
-    "https://s4.anilist.co/file/anilistcdn/character/large/b40-qx20f5uWvJ8U.png"  // Luffy Duplicate for spacing if needed
-];
+// Organized by category for the personalization section
+const animeAvatarCategories = {
+    "Shonen Legends": [
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb40-qx20f5uWvJ8U.png&w=200&h=200&fit=cover&output=webp", name: "Luffy" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb62-nluA6tNlOQEI.png&w=200&h=200&fit=cover&output=webp", name: "Zoro" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb17-81Q1y0280sV7.png&w=200&h=200&fit=cover&output=webp", name: "Naruto" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb1-dVgdEfJt3ozR.png&w=200&h=200&fit=cover&output=webp", name: "Goku" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb27-L1d3h65p7K8A.png&w=200&h=200&fit=cover&output=webp", name: "Killua" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb11-R2D2Kx6uL3qg.png&w=200&h=200&fit=cover&output=webp", name: "Edward Elric" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb30-ZGiPIE6GQY3N.png&w=200&h=200&fit=cover&output=webp", name: "Ichigo" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb72-vJA9D7DzANTn.png&w=200&h=200&fit=cover&output=webp", name: "Natsu" },
+    ],
+    "Dark & Serious": [
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb45627-1KqSntI4kXfA.png&w=200&h=200&fit=cover&output=webp", name: "Levi" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb85-gDXXr92U2Irt.png&w=200&h=200&fit=cover&output=webp", name: "Kakashi" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb71-sBf1j1L92g42.png&w=200&h=200&fit=cover&output=webp", name: "Light Yagami" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb88-bKCkQv52MuUB.png&w=200&h=200&fit=cover&output=webp", name: "Itachi" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb417-puDGvuGT7RB6.png&w=200&h=200&fit=cover&output=webp", name: "Kaneki" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb118737-M3tHfDJF6Hpd.jpg&w=200&h=200&fit=cover&output=webp", name: "Eren" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb56986-fzL5VRFiVImW.png&w=200&h=200&fit=cover&output=webp", name: "Madara" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb74-vT5FhVXWVD64.png&w=200&h=200&fit=cover&output=webp", name: "L Lawliet" },
+    ],
+    "Demon Slayer": [
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb126071-0A861lB7Qp05.png&w=200&h=200&fit=cover&output=webp", name: "Tanjiro" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb127518-nJ1Q9IerM3y6.jpg&w=200&h=200&fit=cover&output=webp", name: "Nezuko" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb128336-1eH83nNqfV70.jpg&w=200&h=200&fit=cover&output=webp", name: "Gojo" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb127540-D9YIyvJfWHIX.png&w=200&h=200&fit=cover&output=webp", name: "Zenitsu" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb127541-2m7cCrFhqxMH.png&w=200&h=200&fit=cover&output=webp", name: "Inosuke" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb127542-mBq2gFZQnvhQ.png&w=200&h=200&fit=cover&output=webp", name: "Rengoku" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb147421-tCWoTu9HPVBH.png&w=200&h=200&fit=cover&output=webp", name: "Douma" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb127561-8P0cFHAqioC0.png&w=200&h=200&fit=cover&output=webp", name: "Shinobu" },
+    ],
+    "Iconic Girls": [
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb13701-vEVbKByGv6bD.png&w=200&h=200&fit=cover&output=webp", name: "Mikasa" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb20-lIcHoKHHDKsh.png&w=200&h=200&fit=cover&output=webp", name: "Hinata" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb120792-cg1Gn3bfKwz7.jpg&w=200&h=200&fit=cover&output=webp", name: "Yor Forger" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb114737-IHLJEXBjm42m.png&w=200&h=200&fit=cover&output=webp", name: "Zero Two" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb116281-IFxy8s6De60R.png&w=200&h=200&fit=cover&output=webp", name: "Raphtalia" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb100811-2OZKfEpFkiX6.png&w=200&h=200&fit=cover&output=webp", name: "Rem" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb79067-Vc2RiGb6B8dL.png&w=200&h=200&fit=cover&output=webp", name: "Asuna" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb36511-Q02kCk2rYZLf.png&w=200&h=200&fit=cover&output=webp", name: "Erza" },
+    ],
+    "Jujutsu Kaisen": [
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb127505-K6q0Z3PLUVLT.png&w=200&h=200&fit=cover&output=webp", name: "Yuji Itadori" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb127506-ux5S3xWTGyrT.png&w=200&h=200&fit=cover&output=webp", name: "Megumi Fushiguro" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb127507-mjnsBGXQI3SZ.png&w=200&h=200&fit=cover&output=webp", name: "Nobara" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb128509-0fLjJbqPTbFX.jpg&w=200&h=200&fit=cover&output=webp", name: "Ryomen Sukuna" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb127508-vwuXQqMaRY8K.png&w=200&h=200&fit=cover&output=webp", name: "Nanami" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb127509-E3o6DXIxZkRd.jpg&w=200&h=200&fit=cover&output=webp", name: "Toge Inumaki" },
+    ],
+    "Classic & Retro": [
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb3-4z5CSFHkgIam.png&w=200&h=200&fit=cover&output=webp", name: "Spike Spiegel" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb5-JbJBzLBY8ZXg.png&w=200&h=200&fit=cover&output=webp", name: "Vash" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb70-MiGEp8P8Izf3.png&w=200&h=200&fit=cover&output=webp", name: "Yusuke Urameshi" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb32-ZpMPjzGFxYUt.png&w=200&h=200&fit=cover&output=webp", name: "Inuyasha" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb55-YiLNUqeRH9mN.png&w=200&h=200&fit=cover&output=webp", name: "Roy Mustang" },
+        { url: "https://wsrv.nl/?url=https%3A%2F%2Fs4.anilist.co%2Ffile%2Fanilistcdn%2Fcharacter%2Flarge%2Fb31-iicLIXHoIBWD.png&w=200&h=200&fit=cover&output=webp", name: "Vegeta" },
+    ],
+};
+
+// Flat array for backwards compatibility (random selection on signup)
+const animeAvatars = Object.values(animeAvatarCategories).flat().map(a => a.url);
 
 const state = {
     currentUser: currentUser,
@@ -138,6 +186,24 @@ async function syncAllData() {
     } catch(err) { console.error("Sync error:", err); }
 }
 
+function getBadgeHtml(email) {
+    const userList = allUsersLists[email] || [];
+    const watchedCount = userList.filter(item => item.listStatus === 'watched').length;
+    if (watchedCount >= 1000) return `<span class="user-badge" style="background: #ff4785; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.6rem; margin-left: 5px; white-space: nowrap;" title="Expert (1000+ Watched)">👑 Expert</span>`;
+    if (watchedCount >= 500) return `<span class="user-badge" style="background: #a154f2; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.6rem; margin-left: 5px; white-space: nowrap;" title="Advanced (500+ Watched)">💎 Advanced</span>`;
+    if (watchedCount >= 200) return `<span class="user-badge" style="background: #00c3ff; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.6rem; margin-left: 5px; white-space: nowrap;" title="Intermediate (200+ Watched)">🥇 Intermediate</span>`;
+    if (watchedCount >= 50) return `<span class="user-badge" style="background: #4CAF50; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.6rem; margin-left: 5px; white-space: nowrap;" title="Elementary (50+ Watched)">🥈 Elementary</span>`;
+    if (watchedCount >= 1) return `<span class="user-badge" style="background: #ffb300; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.6rem; margin-left: 5px; white-space: nowrap;" title="Beginner (1+ Watched)">🥉 Beginner</span>`;
+    return '';
+}
+
+function getEmailFromUsername(username) {
+    for (const email in usersDB) {
+        if (usersDB[email].username === username) return email;
+    }
+    return null;
+}
+
 function checkAuthStatus() {
     const appContainer = document.querySelector('.app-container');
     if (state.currentUser) {
@@ -183,7 +249,7 @@ function renderUserProfile() {
     userProfileBadge.innerHTML = `
         <div class="profile-avatar">${avatarContent}</div>
         <div class="profile-info">
-            <span class="profile-name" title="${state.currentUser}">${displayName}</span>
+            <span class="profile-name" title="${state.currentUser}" style="display:flex; align-items:center;">${displayName} ${getBadgeHtml(state.currentUser)}</span>
             <span class="profile-role ${roleClass}">${userObj.role || 'Member'}</span>
         </div>
     `;
@@ -310,6 +376,11 @@ function setupEventListeners() {
             else if (view === 'genres') renderGenresView();
             else if (view === 'admin') renderAdminView();
             else if (view === 'vault') renderVaultView();
+            else if (view === 'backup') renderBackupView();
+            else if (view === 'badges') renderBadgesView();
+            
+            const bulkPanel = document.getElementById('global-bulk-panel');
+            if (bulkPanel) bulkPanel.classList.add('hidden');
             
             closeDrawer();
         });
@@ -381,64 +452,171 @@ function renderDiscoverView() {
 }
 
 function renderPersonalizationView() {
+    const userObj = usersDB[state.currentUser] || {};
+    const watchedCount = (allUsersLists[state.currentUser] || []).filter(i => i.listStatus === 'watched').length;
+    const watchingCount = (allUsersLists[state.currentUser] || []).filter(i => i.listStatus === 'watching').length;
+    const planCount = (allUsersLists[state.currentUser] || []).filter(i => i.listStatus === 'plan_to_watch').length;
+
     viewContent.innerHTML = `
         <div class="hero-section" style="margin-bottom: 1.5rem;">
             <h2>Personalization</h2>
             <p>Customize your AniVult presence.</p>
         </div>
-        <div class="settings-container">
+
+        <!-- Profile Stats Card -->
+        <div class="profile-stats-card">
+            <div class="profile-stats-avatar" id="preview-avatar">
+                ${userObj.avatar ? `<img src="${userObj.avatar}" alt="Avatar">` : (state.currentUser.charAt(0).toUpperCase())}
+            </div>
+            <div class="profile-stats-info">
+                <div class="profile-stats-name">${userObj.username || state.currentUser.split('@')[0]}</div>
+                <div class="profile-stats-role">${userObj.role || 'Member'}</div>
+                <div class="profile-stats-numbers">
+                    <div class="stat-pill"><span>${watchedCount}</span> Watched</div>
+                    <div class="stat-pill"><span>${watchingCount}</span> Watching</div>
+                    <div class="stat-pill"><span>${planCount}</span> Plan to Watch</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-container" style="margin-top: 2rem;">
             <div class="settings-group">
                 <h3>Nickname</h3>
-                <input type="text" id="settings-nickname" class="settings-input" placeholder="Enter your nickname">
+                <input type="text" id="settings-nickname" class="settings-input" placeholder="Enter your nickname" maxlength="30">
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.4rem;">Max 30 characters. Displayed in chat & leaderboard.</div>
+            </div>
+            <div class="settings-group">
+                <h3>Bio <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 400;">— optional</span></h3>
+                <textarea id="settings-bio" class="settings-input" placeholder="Tell the community about yourself..." maxlength="150" style="resize: none; height: 90px; padding-top: 0.8rem;"></textarea>
+                <div id="bio-counter" style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.4rem; text-align: right;">0 / 150</div>
+            </div>
+            <div class="settings-group">
+                <h3>Live Wallpaper</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.2rem;">Choose an animated background for AniVault.</p>
+                <div class="wallpaper-grid" id="wallpaper-grid"></div>
             </div>
             <div class="settings-group">
                 <h3>Choose Avatar</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.2rem;">Pick a character to represent you across AniVault.</p>
+                <div id="avatar-category-tabs" class="avatar-category-tabs"></div>
                 <div class="avatar-grid" id="settings-avatars"></div>
             </div>
-            <button class="btn btn-primary" id="save-settings-btn" style="align-self: flex-start; margin-top: 1rem;">Save Changes</button>
-            <div id="settings-success" style="color: #4CAF50; font-size: 0.9rem; display: none; margin-top: 1rem;">Settings saved successfully!</div>
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="save-settings-btn">Save Changes</button>
+                <div id="settings-success" class="settings-toast hidden">✓ Profile updated!</div>
+                <div id="settings-error" class="settings-toast settings-toast-error hidden">✗ Could not save. Try again.</div>
+            </div>
         </div>
     `;
 
-    const userObj = usersDB[state.currentUser] || {};
     const nicknameInput = document.getElementById('settings-nickname');
+    const bioInput = document.getElementById('settings-bio');
+    const bioCounter = document.getElementById('bio-counter');
     const avatarGrid = document.getElementById('settings-avatars');
-    
-    nicknameInput.value = userObj.username || state.currentUser.split('@')[0];
-    let selectedAvatar = userObj.avatar || animeAvatars[0];
+    const categoryTabs = document.getElementById('avatar-category-tabs');
 
-    animeAvatars.forEach((avatarUrl) => {
-        const div = document.createElement('div');
-        div.className = 'avatar-option' + (selectedAvatar === avatarUrl ? ' selected' : '');
-        div.innerHTML = `<img src="${avatarUrl}" alt="Avatar">`;
-        
-        div.addEventListener('click', () => {
-            document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
-            div.classList.add('selected');
-            selectedAvatar = avatarUrl;
-        });
-        avatarGrid.appendChild(div);
+    nicknameInput.value = userObj.username || state.currentUser.split('@')[0];
+    bioInput.value = userObj.bio || '';
+    bioCounter.textContent = `${bioInput.value.length} / 150`;
+
+    bioInput.addEventListener('input', () => {
+        bioCounter.textContent = `${bioInput.value.length} / 150`;
     });
+
+    let selectedAvatar = userObj.avatar || animeAvatars[0];
+    let activeCategory = Object.keys(animeAvatarCategories)[0];
+
+    // Render category tabs
+    function renderCategoryTabs() {
+        categoryTabs.innerHTML = '';
+        Object.keys(animeAvatarCategories).forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = `avatar-cat-tab ${cat === activeCategory ? 'active' : ''}`;
+            btn.textContent = cat;
+            btn.addEventListener('click', () => {
+                activeCategory = cat;
+                renderCategoryTabs();
+                renderAvatarsForCategory(cat);
+            });
+            categoryTabs.appendChild(btn);
+        });
+    }
+
+    // Render avatars for a category
+    function renderAvatarsForCategory(cat) {
+        avatarGrid.innerHTML = '';
+        const avatarsInCat = animeAvatarCategories[cat];
+        avatarsInCat.forEach(({ url, name }) => {
+            const div = document.createElement('div');
+            div.className = 'avatar-option' + (selectedAvatar === url ? ' selected' : '');
+            div.title = name;
+            div.innerHTML = `
+                <img src="${url}" alt="${name}">
+                <div class="avatar-option-name">${name}</div>
+            `;
+            div.addEventListener('click', () => {
+                document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+                div.classList.add('selected');
+                selectedAvatar = url;
+                // Update live preview
+                const preview = document.getElementById('preview-avatar');
+                if (preview) preview.innerHTML = `<img src="${url}" alt="${name}">`;
+            });
+            avatarGrid.appendChild(div);
+        });
+    }
+
+    renderCategoryTabs();
+    renderAvatarsForCategory(activeCategory);
+
+    // Wallpaper theme picker
+    const wallpaperGrid = document.getElementById('wallpaper-grid');
+    if (wallpaperGrid) {
+        wallpaperThemes.forEach(theme => {
+            const card = document.createElement('div');
+            card.className = 'wallpaper-option' + (activeWallpaper === theme.id ? ' selected' : '');
+            card.innerHTML = `
+                <div class="wallpaper-icon">${theme.icon}</div>
+                <div class="wallpaper-name">${theme.name}</div>
+                <div class="wallpaper-desc">${theme.desc}</div>
+            `;
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.wallpaper-option').forEach(el => el.classList.remove('selected'));
+                card.classList.add('selected');
+                applyWallpaperTheme(theme.id);
+            });
+            wallpaperGrid.appendChild(card);
+        });
+    }
 
     document.getElementById('save-settings-btn').addEventListener('click', async () => {
         const newNickname = nicknameInput.value.trim();
-        if (!newNickname) return;
-        
+        const newBio = bioInput.value.trim();
+        if (!newNickname) { nicknameInput.focus(); return; }
+
+        const successMsg = document.getElementById('settings-success');
+        const errorMsg = document.getElementById('settings-error');
+
+        usersDB[state.currentUser] = usersDB[state.currentUser] || {};
         usersDB[state.currentUser].username = newNickname;
         usersDB[state.currentUser].avatar = selectedAvatar;
-        
+        usersDB[state.currentUser].bio = newBio;
+
         try {
             await db.collection('users').doc(state.currentUser).update({
                 username: newNickname,
-                avatar: selectedAvatar
+                avatar: selectedAvatar,
+                bio: newBio
             });
             renderUserProfile();
-            
-            const successMsg = document.getElementById('settings-success');
-            successMsg.style.display = 'block';
-            setTimeout(() => { successMsg.style.display = 'none'; }, 3000);
+            successMsg.classList.remove('hidden');
+            errorMsg.classList.add('hidden');
+            setTimeout(() => successMsg.classList.add('hidden'), 3000);
         } catch (e) {
             console.error("Error saving settings:", e);
+            errorMsg.classList.remove('hidden');
+            successMsg.classList.add('hidden');
+            setTimeout(() => errorMsg.classList.add('hidden'), 3000);
         }
     });
 }
@@ -529,7 +707,7 @@ async function renderAdminView() {
             <div class="admin-member-item">
                 <div class="user-row-avatar"><img src="${user.avatar || animeAvatars[0]}" alt="Avatar"></div>
                 <div class="admin-member-info">
-                    <div class="admin-member-name">${user.username || email.split('@')[0]}</div>
+                    <div class="admin-member-name" style="display:flex; align-items:center;">${user.username || email.split('@')[0]} ${getBadgeHtml(email)}</div>
                     <div class="admin-member-email">${email} • Joined: ${joinDate}</div>
                 </div>
                 <div class="admin-member-actions">
@@ -625,7 +803,7 @@ function renderLeaderboardView() {
             <div class="rank ${rankClass}">#${index + 1}</div>
             <div class="profile-avatar">${avatarContent}</div>
             <div class="leader-info">
-                <div class="leader-name">${displayName}</div>
+                <div class="leader-name" style="display:flex; align-items:center;">${displayName} ${getBadgeHtml(user.email)}</div>
                 ${roleBadge}
             </div>
             <div class="leader-score">${user.count} <span>Anime</span></div>
@@ -714,10 +892,13 @@ function renderChatMessages(chatDB) {
         
         const avatarContent = msg.avatar ? `<img src="${msg.avatar}" alt="Avatar">` : '?';
         
+        let emailForBadge = getEmailFromUsername(msg.author);
+        let badgeHtml = emailForBadge ? getBadgeHtml(emailForBadge) : '';
+        
         div.innerHTML = `
             <div class="chat-author" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
                 <div class="profile-avatar" style="width:24px; height:24px; font-size:0.7rem;">${avatarContent}</div>
-                <span style="font-weight:600;">${msg.author}</span> ${roleBadge}
+                <span style="font-weight:600; display:flex; align-items:center;">${msg.author} ${badgeHtml}</span> ${roleBadge}
             </div>
             <div class="chat-bubble">${msg.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
         `;
@@ -765,6 +946,355 @@ function renderVaultView() {
     } else {
         renderGrid(displayList, grid);
     }
+}
+
+function renderBadgesView() {
+    const bulkPanel = document.getElementById('global-bulk-panel');
+    if (bulkPanel) bulkPanel.classList.add('hidden');
+
+    const myListForUser = allUsersLists[state.currentUser] || [];
+    const watchedCount = myListForUser.filter(i => i.listStatus === 'watched').length;
+    const watchingCount = myListForUser.filter(i => i.listStatus === 'watching').length;
+    const planCount = myListForUser.filter(i => i.listStatus === 'plan_to_watch').length;
+    const totalTracked = myListForUser.length;
+
+    // Define all badges with tiers, icons, unlock conditions
+    const allBadges = [
+        // --- Watcher tiers ---
+        {
+            id: 'first_watch', icon: '🥉', name: 'First Watch', desc: 'Mark your first anime as Watched.',
+            tier: 'bronze', unlocked: watchedCount >= 1,
+            progress: Math.min(watchedCount, 1), goal: 1, unit: 'watched'
+        },
+        {
+            id: 'beginner', icon: '🌱', name: 'Beginner', desc: 'Watch 10 anime.',
+            tier: 'bronze', unlocked: watchedCount >= 10,
+            progress: Math.min(watchedCount, 10), goal: 10, unit: 'watched'
+        },
+        {
+            id: 'dedicated', icon: '📺', name: 'Dedicated Viewer', desc: 'Watch 50 anime.',
+            tier: 'silver', unlocked: watchedCount >= 50,
+            progress: Math.min(watchedCount, 50), goal: 50, unit: 'watched'
+        },
+        {
+            id: 'intermediate', icon: '🥇', name: 'Intermediate', desc: 'Watch 200 anime.',
+            tier: 'gold', unlocked: watchedCount >= 200,
+            progress: Math.min(watchedCount, 200), goal: 200, unit: 'watched'
+        },
+        {
+            id: 'advanced', icon: '💎', name: 'Advanced', desc: 'Watch 500 anime.',
+            tier: 'diamond', unlocked: watchedCount >= 500,
+            progress: Math.min(watchedCount, 500), goal: 500, unit: 'watched'
+        },
+        {
+            id: 'expert', icon: '👑', name: 'Expert', desc: 'Watch 1000 anime. Legendary.',
+            tier: 'legendary', unlocked: watchedCount >= 1000,
+            progress: Math.min(watchedCount, 1000), goal: 1000, unit: 'watched'
+        },
+        // --- Tracker tiers ---
+        {
+            id: 'list_starter', icon: '📋', name: 'List Starter', desc: 'Add 5 anime to your vault.',
+            tier: 'bronze', unlocked: totalTracked >= 5,
+            progress: Math.min(totalTracked, 5), goal: 5, unit: 'tracked'
+        },
+        {
+            id: 'curator', icon: '🗂️', name: 'Curator', desc: 'Track 25 anime in any status.',
+            tier: 'silver', unlocked: totalTracked >= 25,
+            progress: Math.min(totalTracked, 25), goal: 25, unit: 'tracked'
+        },
+        {
+            id: 'archivist', icon: '🏛️', name: 'Archivist', desc: 'Track 100 anime in your vault.',
+            tier: 'gold', unlocked: totalTracked >= 100,
+            progress: Math.min(totalTracked, 100), goal: 100, unit: 'tracked'
+        },
+        // --- Watchlist tiers ---
+        {
+            id: 'planner', icon: '🔖', name: 'The Planner', desc: 'Add 10 anime to Plan to Watch.',
+            tier: 'bronze', unlocked: planCount >= 10,
+            progress: Math.min(planCount, 10), goal: 10, unit: 'planned'
+        },
+        {
+            id: 'binge_watcher', icon: '🍿', name: 'Binge Watcher', desc: 'Have 5 anime in Watching at once.',
+            tier: 'silver', unlocked: watchingCount >= 5,
+            progress: Math.min(watchingCount, 5), goal: 5, unit: 'watching'
+        },
+        {
+            id: 'completionist', icon: '✅', name: 'Completionist', desc: 'Watch 100 anime.',
+            tier: 'gold', unlocked: watchedCount >= 100,
+            progress: Math.min(watchedCount, 100), goal: 100, unit: 'watched'
+        },
+    ];
+
+    const unlockedBadges = allBadges.filter(b => b.unlocked);
+    const lockedBadges = allBadges.filter(b => !b.unlocked);
+
+    const tierColors = {
+        bronze: '#cd7f32',
+        silver: '#a8a9ad',
+        gold: '#ffd700',
+        diamond: '#00e5ff',
+        legendary: '#ff4785'
+    };
+
+    function badgeCardHtml(badge) {
+        const color = tierColors[badge.tier] || '#aaa';
+        const pct = Math.round((badge.progress / badge.goal) * 100);
+        return `
+            <div class="badge-card ${badge.unlocked ? 'badge-unlocked' : 'badge-locked'}" style="--badge-color: ${color};">
+                <div class="badge-icon">${badge.icon}</div>
+                <div class="badge-name">${badge.name}</div>
+                <div class="badge-tier-label" style="color: ${color};">${badge.tier.toUpperCase()}</div>
+                <div class="badge-desc">${badge.desc}</div>
+                ${!badge.unlocked ? `
+                    <div class="badge-progress-bar-wrap">
+                        <div class="badge-progress-bar" style="width: ${pct}%; background: ${color};"></div>
+                    </div>
+                    <div class="badge-progress-text">${badge.progress} / ${badge.goal} ${badge.unit}</div>
+                ` : `<div class="badge-earned-label">✓ Earned</div>`}
+            </div>
+        `;
+    }
+
+    viewContent.innerHTML = `
+        <div class="hero-section" style="margin-bottom: 1.5rem;">
+            <h2>Badges</h2>
+            <p>Earn badges by tracking and watching anime. Flex your collection!</p>
+        </div>
+
+        <!-- Summary row -->
+        <div class="badges-summary-row">
+            <div class="badges-summary-card">
+                <div class="badges-summary-num" style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${unlockedBadges.length}</div>
+                <div class="badges-summary-label">Badges Earned</div>
+            </div>
+            <div class="badges-summary-card">
+                <div class="badges-summary-num" style="color: var(--text-muted);">${lockedBadges.length}</div>
+                <div class="badges-summary-label">Locked</div>
+            </div>
+            <div class="badges-summary-card">
+                <div class="badges-summary-num">${allBadges.length}</div>
+                <div class="badges-summary-label">Total Badges</div>
+            </div>
+        </div>
+
+        ${unlockedBadges.length > 0 ? `
+        <div class="badges-section-title">
+            <span>🏆 Earned Badges</span>
+            <span class="badges-count-pill">${unlockedBadges.length}</span>
+        </div>
+        <div class="badges-grid">
+            ${unlockedBadges.map(b => badgeCardHtml(b)).join('')}
+        </div>
+        ` : ''}
+
+        <div class="badges-section-title" style="margin-top: ${unlockedBadges.length > 0 ? '2.5rem' : '0'};">
+            <span>🔒 Locked Badges</span>
+            <span class="badges-count-pill">${lockedBadges.length}</span>
+        </div>
+        <div class="badges-grid">
+            ${lockedBadges.map(b => badgeCardHtml(b)).join('')}
+        </div>
+    `;
+}
+
+function renderBackupView() {
+    const bulkPanel = document.getElementById('global-bulk-panel');
+    if (bulkPanel) bulkPanel.classList.add('hidden');
+
+    const totalAnime = state.myList.length;
+    const watchedCount = state.myList.filter(i => i.listStatus === 'watched').length;
+    const watchingCount = state.myList.filter(i => i.listStatus === 'watching').length;
+    const planCount = state.myList.filter(i => i.listStatus === 'plan_to_watch').length;
+
+    viewContent.innerHTML = `
+        <div class="hero-section" style="margin-bottom: 1.5rem;">
+            <h2>Backup & Restore</h2>
+            <p>Export your anime list as a JSON file to keep it safe, or import an existing backup.</p>
+        </div>
+
+        <div class="backup-stats-row">
+            <div class="backup-stat-card">
+                <div class="backup-stat-num">${totalAnime}</div>
+                <div class="backup-stat-label">Total Anime</div>
+            </div>
+            <div class="backup-stat-card">
+                <div class="backup-stat-num" style="color: #4CAF50;">${watchedCount}</div>
+                <div class="backup-stat-label">Watched</div>
+            </div>
+            <div class="backup-stat-card">
+                <div class="backup-stat-num" style="color: var(--accent-primary);">${watchingCount}</div>
+                <div class="backup-stat-label">Watching</div>
+            </div>
+            <div class="backup-stat-card">
+                <div class="backup-stat-num" style="color: var(--accent-secondary);">${planCount}</div>
+                <div class="backup-stat-label">Plan to Watch</div>
+            </div>
+        </div>
+
+        <div id="backup-toast" class="backup-toast hidden"></div>
+
+        <div class="settings-container" style="display: flex; flex-direction: column; gap: 2rem; max-width: 600px; margin: 1.5rem auto 0; background: rgba(255,255,255,0.02); padding: 2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.07);">
+            <div class="settings-group" style="margin-bottom: 0;">
+                <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Export Backup
+                </h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">Download your entire anime vault to a local JSON file. You can use this file to restore your list later.</p>
+                <button id="export-backup-btn" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Export JSON Backup (${totalAnime} anime)
+                </button>
+            </div>
+
+            <div style="height: 1px; background: rgba(255,255,255,0.08); width: 100%;"></div>
+
+            <div class="settings-group" style="margin-bottom: 0;">
+                <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    Import Backup
+                </h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">Upload a previously exported JSON backup file. <strong style="color: var(--accent-secondary);">Warning:</strong> This will replace your current vault. Export first if needed.</p>
+
+                <div id="import-drop-zone" class="import-drop-zone">
+                    <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-muted); margin-bottom: 0.8rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <div style="font-weight: 600; margin-bottom: 0.3rem; color: var(--text-main);">Drag & drop your backup file here</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">or click to browse (.json)</div>
+                    <div id="drop-zone-file-name" style="margin-top: 0.8rem; font-size: 0.85rem; color: var(--accent-primary); display: none;"></div>
+                </div>
+                <input type="file" id="import-backup-file" style="display: none;" accept=".json,.txt">
+
+                <button id="import-backup-btn" class="btn btn-secondary" style="width: 100%; justify-content: center; margin-top: 1rem; opacity: 0.45; pointer-events: none;">
+                    Import Selected File
+                </button>
+            </div>
+        </div>
+    `;
+
+    function showBackupToast(msg, isError = false) {
+        const toast = document.getElementById('backup-toast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.className = `backup-toast ${isError ? 'backup-toast-error' : 'backup-toast-success'}`;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 4000);
+    }
+
+    document.getElementById('export-backup-btn').addEventListener('click', () => {
+        if (!state.myList || state.myList.length === 0) {
+            showBackupToast('Your vault is empty. Nothing to export.', true);
+            return;
+        }
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.myList, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        const date = new Date().toISOString().split('T')[0];
+        downloadAnchorNode.setAttribute("download", `anivault_backup_${date}.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+        showBackupToast('Backup downloaded successfully!');
+    });
+
+    const importFileInput = document.getElementById('import-backup-file');
+    const importBtn = document.getElementById('import-backup-btn');
+    const dropZone = document.getElementById('import-drop-zone');
+    const dropFileName = document.getElementById('drop-zone-file-name');
+    let pendingImportFile = null;
+
+    function handleFileSelected(file) {
+        if (!file) return;
+        pendingImportFile = file;
+        dropFileName.textContent = '📄 ' + file.name;
+        dropFileName.style.display = 'block';
+        // Enable button using style (NOT the disabled attribute which blocks click events)
+        importBtn.style.opacity = '1';
+        importBtn.style.pointerEvents = 'auto';
+        importBtn.classList.remove('btn-secondary');
+        importBtn.classList.add('btn-primary');
+        dropZone.style.borderColor = 'var(--accent-primary)';
+    }
+
+    dropZone.addEventListener('click', () => importFileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        if (e.dataTransfer.files[0]) handleFileSelected(e.dataTransfer.files[0]);
+    });
+    importFileInput.addEventListener('change', (e) => {
+        if (e.target.files[0]) handleFileSelected(e.target.files[0]);
+    });
+
+    importBtn.addEventListener('click', () => {
+        if (!pendingImportFile) {
+            showBackupToast('Please select a backup file first.', true);
+            return;
+        }
+        importBtn.textContent = 'Importing...';
+        importBtn.style.opacity = '0.7';
+        importBtn.style.pointerEvents = 'none';
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
+                const raw = event.target.result;
+                let importedData;
+                try {
+                    importedData = JSON.parse(raw);
+                } catch (parseErr) {
+                    showBackupToast('Could not parse file — make sure it is a valid JSON backup.', true);
+                    importBtn.textContent = 'Import Selected File';
+                    importBtn.style.opacity = '1';
+                    importBtn.style.pointerEvents = 'auto';
+                    return;
+                }
+                if (!Array.isArray(importedData)) {
+                    showBackupToast('Invalid format — expected a JSON array of anime items.', true);
+                    importBtn.textContent = 'Import Selected File';
+                    importBtn.style.opacity = '1';
+                    importBtn.style.pointerEvents = 'auto';
+                    return;
+                }
+                // Relax validation: only require at least 'id' or 'title' to handle various backup formats
+                const isValid = importedData.length === 0 || importedData.some(item => item && (item.id !== undefined || item.title));
+                if (!isValid) {
+                    showBackupToast('File appears corrupted — no recognizable anime data found.', true);
+                    importBtn.textContent = 'Import Selected File';
+                    importBtn.style.opacity = '1';
+                    importBtn.style.pointerEvents = 'auto';
+                    return;
+                }
+                state.myList = importedData;
+                await saveList();
+                allUsersLists[state.currentUser] = state.myList;
+                showBackupToast('✓ Imported ' + importedData.length + ' anime successfully! Your vault is updated.');
+                pendingImportFile = null;
+                importFileInput.value = '';
+                dropFileName.style.display = 'none';
+                importBtn.textContent = 'Import Selected File';
+                importBtn.classList.add('btn-secondary');
+                importBtn.classList.remove('btn-primary');
+                importBtn.style.opacity = '0.45';
+                importBtn.style.pointerEvents = 'none';
+                dropZone.style.borderColor = '';
+                setTimeout(() => renderBackupView(), 1600);
+            } catch (err) {
+                console.error('Import error:', err);
+                showBackupToast('Unexpected error reading file. Please try again.', true);
+                importBtn.textContent = 'Import Selected File';
+                importBtn.style.opacity = '1';
+                importBtn.style.pointerEvents = 'auto';
+            }
+        };
+        reader.onerror = () => {
+            showBackupToast('Could not read file. Please try again.', true);
+            importBtn.textContent = 'Import Selected File';
+            importBtn.style.opacity = '1';
+            importBtn.style.pointerEvents = 'auto';
+        };
+        reader.readAsText(pendingImportFile);
+    });
 }
 
 // API Calls
@@ -841,7 +1371,10 @@ function renderGrid(animeArray, container) {
         const listItem = state.myList.find(item => item.id == id);
         const listBadgeHtml = listItem ? `<div class="score-badge" style="top:auto; bottom:10px; right:10px; background:var(--accent-primary)">✓ ${formatListType(listItem.listStatus)}</div>` : '';
 
-        const checkboxHtml = `<div class="bulk-checkbox-container" style="position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); border-radius: 4px; padding: 4px; display: flex; align-items: center; justify-content: center;"><input type="checkbox" class="bulk-checkbox" data-id="${id}" style="transform: scale(1.5); cursor: pointer; margin: 0; accent-color: var(--accent-primary);"></div>`;
+        let checkboxHtml = '';
+        if (state.currentView === 'discover') {
+            checkboxHtml = `<div class="bulk-checkbox-container" style="position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); border-radius: 4px; padding: 4px; display: flex; align-items: center; justify-content: center;"><input type="checkbox" class="bulk-checkbox" data-id="${id}" style="transform: scale(1.5); cursor: pointer; margin: 0; accent-color: var(--accent-primary);"></div>`;
+        }
 
         card.innerHTML = `
             <div class="card-img-container" style="position: relative;">
@@ -858,12 +1391,13 @@ function renderGrid(animeArray, container) {
                 </div>
             </div>
         `;
-        
         const checkbox = card.querySelector('.bulk-checkbox');
-        checkbox.addEventListener('click', (e) => e.stopPropagation());
-        checkbox.addEventListener('change', () => {
-            if (typeof updateGlobalBulkPanel === 'function') updateGlobalBulkPanel();
-        });
+        if (checkbox) {
+            checkbox.addEventListener('click', (e) => e.stopPropagation());
+            checkbox.addEventListener('change', () => {
+                if (typeof updateGlobalBulkPanel === 'function') updateGlobalBulkPanel();
+            });
+        }
 
         card.addEventListener('click', () => showAnimeDetails(id, anime));
         container.appendChild(card);
@@ -1143,129 +1677,357 @@ function setupBulkListeners() {
 
 init();
 
-// Live Background Animation
-function initLiveBackground() {
+// ===== WALLPAPER THEMES =====
+const wallpaperThemes = [
+    {
+        id: 'particles',
+        name: 'Void Particles',
+        icon: '✨',
+        desc: 'Purple & pink floating constellation',
+        bgCss: 'none'
+    },
+    {
+        id: 'sakura',
+        name: 'Sakura Storm',
+        icon: '🌸',
+        desc: 'Falling cherry blossom petals',
+        bgCss: 'none'
+    },
+    {
+        id: 'matrix',
+        name: 'Digital Rain',
+        icon: '💻',
+        desc: 'Green matrix-style code rain',
+        bgCss: 'none'
+    },
+    {
+        id: 'aurora',
+        name: 'Aurora Wave',
+        icon: '🌌',
+        desc: 'Flowing northern lights colors',
+        bgCss: 'none'
+    },
+    {
+        id: 'fire',
+        name: 'Soul Flame',
+        icon: '🔥',
+        desc: 'Rising fire embers and sparks',
+        bgCss: 'none'
+    },
+    {
+        id: 'ocean',
+        name: 'Dark Ocean',
+        icon: '🌊',
+        desc: 'Deep ocean waves rippling',
+        bgCss: 'none'
+    }
+];
+
+let activeWallpaper = localStorage.getItem('anivault_wallpaper') || 'particles';
+let wallpaperAnimFrame = null;
+
+function applyWallpaperTheme(themeId) {
+    activeWallpaper = themeId;
+    localStorage.setItem('anivault_wallpaper', themeId);
+    if (wallpaperAnimFrame) {
+        cancelAnimationFrame(wallpaperAnimFrame);
+        wallpaperAnimFrame = null;
+    }
+    const canvas = document.getElementById('live-bg');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    // Update body background based on theme
+    const bgMap = {
+        'particles': "url('https://media1.tenor.com/m/m57iT-Q100kAAAAd/demon-slayer-tengen.gif') center/cover no-repeat fixed",
+        'sakura': 'linear-gradient(135deg, #0a0612 0%, #1a0a1a 50%, #0d0a18 100%)',
+        'matrix': 'linear-gradient(135deg, #000a00 0%, #001500 100%)',
+        'aurora': 'linear-gradient(135deg, #050818 0%, #0a0a20 50%, #050c18 100%)',
+        'fire': 'linear-gradient(135deg, #0f0500 0%, #1a0800 50%, #0f0200 100%)',
+        'ocean': 'linear-gradient(135deg, #00080f 0%, #000d18 50%, #000510 100%)'
+    };
+    document.body.style.background = bgMap[themeId] || bgMap['particles'];
+    initLiveBackground(themeId);
+}
+// ===== END WALLPAPER THEMES =====
+
+// Live Background Animation — Multi-theme
+function initLiveBackground(themeOverride) {
+    const theme = themeOverride || activeWallpaper || 'particles';
     const canvas = document.getElementById('live-bg');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    
-    let width, height;
-    let particles = [];
-    
+
+    let width, height, particles = [], time = 0;
+
     function resize() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
     }
-    
     window.addEventListener('resize', resize);
     resize();
-    
-    class Particle {
-        constructor() {
-            this.x = Math.random() * width;
-            this.y = Math.random() * height;
-            this.size = Math.random() * 2 + 0.5;
-            this.speedX = Math.random() * 1 - 0.5;
-            this.speedY = Math.random() * 1 - 0.5;
-            this.life = Math.random() * 100 + 50;
-            
-            // Theme accent colors: Primary (#a154f2) and Secondary (#ff4785)
-            const isPink = Math.random() > 0.5;
-            this.color = isPink ? `rgba(255, 71, 133, ${Math.random() * 0.5 + 0.2})` : `rgba(161, 84, 242, ${Math.random() * 0.5 + 0.2})`;
-        }
-        
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            
-            if (this.x < 0) this.x = width;
-            if (this.x > width) this.x = 0;
-            if (this.y < 0) this.y = height;
-            if (this.y > height) this.y = 0;
-            
-            this.life -= 0.5;
-            if (this.life <= 0) {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.life = Math.random() * 100 + 50;
-            }
-        }
-        
-        draw() {
-            ctx.fillStyle = this.color;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
-    
-    function initParticles() {
-        particles = [];
-        // Dynamically adjust particle count based on screen size for performance
-        // Slightly reduced density for better optimization
-        const numParticles = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 12000), 100);
-        for (let i = 0; i < numParticles; i++) {
-            particles.push(new Particle());
-        }
-    }
-    
-    // Re-init particles on significant resize
+
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(initParticles, 300);
+        resizeTimeout = setTimeout(() => { resize(); initParticles(); }, 300);
     });
-    
+
+    const COUNT = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 10000), 120);
+
+    // ---- PARTICLES (Void) ----
+    function makeParticle() {
+        const isPink = Math.random() > 0.5;
+        return {
+            x: Math.random() * width, y: Math.random() * height,
+            size: Math.random() * 2 + 0.5,
+            speedX: Math.random() * 1 - 0.5, speedY: Math.random() * 1 - 0.5,
+            life: Math.random() * 100 + 50,
+            color: isPink ? `rgba(255,71,133,${Math.random()*0.5+0.2})` : `rgba(161,84,242,${Math.random()*0.5+0.2})`
+        };
+    }
+
+    // ---- SAKURA ----
+    function makePetal() {
+        return {
+            x: Math.random() * width, y: -20,
+            size: Math.random() * 8 + 4,
+            speedX: Math.random() * 1 - 0.3,
+            speedY: Math.random() * 1.5 + 0.5,
+            rotation: Math.random() * Math.PI * 2,
+            rotSpeed: (Math.random() - 0.5) * 0.05,
+            opacity: Math.random() * 0.5 + 0.3,
+            color: `hsl(${340 + Math.random()*20},80%,${75+Math.random()*15}%)`
+        };
+    }
+
+    // ---- MATRIX ----
+    const matrixCols = Math.floor((window.innerWidth || 800) / 16);
+    const matrixDrops = Array(matrixCols).fill(1);
+    const matrixChars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF';
+
+    // ---- AURORA ----
+    const auroraBands = Array.from({length: 5}, (_, i) => ({
+        offset: Math.random() * Math.PI * 2,
+        speed: 0.003 + Math.random() * 0.003,
+        hue: 180 + i * 40
+    }));
+
+    // ---- FIRE / EMBER ----
+    function makeEmber() {
+        return {
+            x: Math.random() * width,
+            y: height + 10,
+            size: Math.random() * 3 + 1,
+            speedX: (Math.random() - 0.5) * 1.2,
+            speedY: -(Math.random() * 2 + 1),
+            life: 1.0,
+            decay: Math.random() * 0.01 + 0.005
+        };
+    }
+
+    // ---- OCEAN ----
+    function makeOceanParticle() {
+        return {
+            x: Math.random() * width,
+            y: Math.random() * height,
+            size: Math.random() * 3 + 1,
+            speedX: Math.random() * 0.4 - 0.2,
+            speedY: Math.random() * 0.3 - 0.15,
+            opacity: Math.random() * 0.4 + 0.1,
+            phase: Math.random() * Math.PI * 2,
+            phaseSpeed: 0.01 + Math.random() * 0.02
+        };
+    }
+
+    function initParticles() {
+        particles = [];
+        const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 10000), 120);
+        if (theme === 'particles') for (let i = 0; i < count; i++) particles.push(makeParticle());
+        else if (theme === 'sakura') for (let i = 0; i < 80; i++) { const p = makePetal(); p.y = Math.random() * height; particles.push(p); }
+        else if (theme === 'fire') for (let i = 0; i < 150; i++) { const e = makeEmber(); e.y = Math.random() * height; e.life = Math.random(); particles.push(e); }
+        else if (theme === 'ocean') for (let i = 0; i < count; i++) particles.push(makeOceanParticle());
+    }
     initParticles();
-    
-    let time = 0;
-    function animate() {
+
+    function animateParticles() {
         ctx.clearRect(0, 0, width, height);
-        
-        // Subtle moving aurora gradient effect
         time += 0.005;
+
+        // Ambient overlay
         const xOffset = Math.sin(time) * 100;
-        let gradient = ctx.createLinearGradient(0 + xOffset, 0, width - xOffset, height);
-        gradient.addColorStop(0, 'rgba(161, 84, 242, 0.08)');
-        gradient.addColorStop(0.5, 'transparent');
-        gradient.addColorStop(1, 'rgba(255, 71, 133, 0.08)');
-        ctx.fillStyle = gradient;
+        let grad = ctx.createLinearGradient(xOffset, 0, width - xOffset, height);
+        grad.addColorStop(0, 'rgba(161,84,242,0.06)');
+        grad.addColorStop(0.5, 'transparent');
+        grad.addColorStop(1, 'rgba(255,71,133,0.06)');
+        ctx.fillStyle = grad;
         ctx.fillRect(0, 0, width, height);
 
-        // Draw and update particles
-        for (let i = 0; i < particles.length; i++) {
-            particles[i].update();
-            particles[i].draw();
-        }
-        
-        // Faint lines between nearby particles for a "constellation" effect
-        // Optimized with squared distance instead of Math.sqrt
+        particles.forEach(p => {
+            p.x += p.speedX; p.y += p.speedY;
+            if (p.x < 0) p.x = width; if (p.x > width) p.x = 0;
+            if (p.y < 0) p.y = height; if (p.y > height) p.y = 0;
+            p.life -= 0.5;
+            if (p.life <= 0) { Object.assign(p, makeParticle()); }
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+        });
+
         ctx.lineWidth = 0.5;
         for (let i = 0; i < particles.length; i++) {
-            for (let j = i + 1; j < particles.length; j++) {
-                const dx = particles[i].x - particles[j].x;
-                const dy = particles[i].y - particles[j].y;
-                const distSq = dx * dx + dy * dy;
-                
-                // 100 * 100 = 10000
-                if (distSq < 10000) {
-                    const distance = Math.sqrt(distSq);
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 - distance / 1000})`;
-                    ctx.beginPath();
-                    ctx.moveTo(particles[i].x, particles[i].y);
-                    ctx.lineTo(particles[j].x, particles[j].y);
-                    ctx.stroke();
+            for (let j = i+1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+                const d2 = dx*dx + dy*dy;
+                if (d2 < 10000) {
+                    ctx.strokeStyle = `rgba(255,255,255,${0.1 - Math.sqrt(d2)/1000})`;
+                    ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
                 }
             }
         }
-
-        requestAnimationFrame(animate);
+        wallpaperAnimFrame = requestAnimationFrame(animateParticles);
     }
-    
-    animate();
+
+    function animateSakura() {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => {
+            p.x += p.speedX + Math.sin(time + p.y * 0.01) * 0.3;
+            p.y += p.speedY;
+            p.rotation += p.rotSpeed;
+            if (p.y > height + 20) { Object.assign(p, makePetal()); }
+
+            ctx.save();
+            ctx.globalAlpha = p.opacity;
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            // Petal shape
+            ctx.ellipse(0, 0, p.size * 0.6, p.size, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
+        });
+        time += 0.01;
+        wallpaperAnimFrame = requestAnimationFrame(animateSakura);
+    }
+
+    function animateMatrix() {
+        ctx.fillStyle = 'rgba(0,10,0,0.05)';
+        ctx.fillRect(0, 0, width, height);
+        ctx.fillStyle = '#00ff41';
+        ctx.font = '14px monospace';
+        matrixDrops.forEach((y, i) => {
+            const ch = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+            ctx.fillStyle = `rgba(0,255,65,${Math.random() * 0.5 + 0.3})`;
+            ctx.fillText(ch, i * 16, y * 16);
+            if (y * 16 > height && Math.random() > 0.975) matrixDrops[i] = 0;
+            matrixDrops[i]++;
+        });
+        wallpaperAnimFrame = requestAnimationFrame(animateMatrix);
+    }
+
+    function animateAurora() {
+        ctx.clearRect(0, 0, width, height);
+        auroraBands.forEach((band, i) => {
+            band.offset += band.speed;
+            for (let x = 0; x < width; x += 4) {
+                const wave = Math.sin(x * 0.005 + band.offset) * height * 0.12 + height * (0.2 + i * 0.12);
+                const bandHeight = 80 + Math.sin(x * 0.003 + band.offset * 0.7) * 40;
+                const grad = ctx.createLinearGradient(x, wave - bandHeight, x, wave + bandHeight);
+                grad.addColorStop(0, 'transparent');
+                grad.addColorStop(0.5, `hsla(${band.hue},80%,60%,0.12)`);
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.fillRect(x, wave - bandHeight, 4, bandHeight * 2);
+            }
+        });
+        // Stars
+        if (!animateAurora._stars) {
+            animateAurora._stars = Array.from({length: 120}, () => ({
+                x: Math.random() * 99999 % width,
+                y: Math.random() * height * 0.6,
+                r: Math.random() * 1.2 + 0.3,
+                twinkle: Math.random() * Math.PI * 2
+            }));
+        }
+        animateAurora._stars.forEach(s => {
+            s.twinkle += 0.02;
+            ctx.globalAlpha = 0.3 + Math.sin(s.twinkle) * 0.3;
+            ctx.fillStyle = 'white';
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        wallpaperAnimFrame = requestAnimationFrame(animateAurora);
+    }
+
+    function animateFire() {
+        ctx.clearRect(0, 0, width, height);
+        // Base glow
+        const baseGrad = ctx.createLinearGradient(0, height * 0.6, 0, height);
+        baseGrad.addColorStop(0, 'transparent');
+        baseGrad.addColorStop(1, 'rgba(255,60,0,0.08)');
+        ctx.fillStyle = baseGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        particles.forEach((p, idx) => {
+            p.x += p.speedX + Math.sin(time * 2 + idx) * 0.3;
+            p.y += p.speedY;
+            p.life -= p.decay;
+            if (p.life <= 0 || p.y < -10) Object.assign(p, makeEmber());
+
+            const alpha = p.life * 0.8;
+            const hue = p.life > 0.6 ? 40 : p.life > 0.3 ? 20 : 0;
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = `hsl(${hue},100%,${50 + p.life * 30}%)`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        time += 0.02;
+        wallpaperAnimFrame = requestAnimationFrame(animateFire);
+    }
+
+    function animateOcean() {
+        ctx.clearRect(0, 0, width, height);
+        // Wave layers
+        for (let layer = 0; layer < 3; layer++) {
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            for (let x = 0; x <= width; x += 8) {
+                const y = height * (0.4 + layer * 0.2) +
+                    Math.sin(x * 0.006 + time + layer * 1.2) * 40 +
+                    Math.sin(x * 0.003 + time * 0.7 + layer) * 20;
+                x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.lineTo(width, height); ctx.closePath();
+            ctx.fillStyle = `rgba(0,${80 + layer * 30},${150 + layer * 20},0.07)`;
+            ctx.fill();
+        }
+        // Bioluminescent particles
+        particles.forEach(p => {
+            p.phase += p.phaseSpeed;
+            p.x += p.speedX; p.y += p.speedY + Math.sin(p.phase) * 0.2;
+            if (p.x < 0) p.x = width; if (p.x > width) p.x = 0;
+            if (p.y < 0) p.y = height; if (p.y > height) p.y = 0;
+            ctx.globalAlpha = p.opacity * (0.5 + Math.sin(p.phase) * 0.5);
+            ctx.fillStyle = `hsl(${180 + Math.sin(p.phase)*20},100%,65%)`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        time += 0.008;
+        wallpaperAnimFrame = requestAnimationFrame(animateOcean);
+    }
+
+    const animMap = {
+        particles: animateParticles,
+        sakura: animateSakura,
+        matrix: animateMatrix,
+        aurora: animateAurora,
+        fire: animateFire,
+        ocean: animateOcean
+    };
+    (animMap[theme] || animateParticles)();
 }
 
-// Start background
-initLiveBackground();
+// Start background with saved or default theme
+applyWallpaperTheme(activeWallpaper);
