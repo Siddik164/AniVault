@@ -143,17 +143,6 @@ APP_01/
 
 AniVault connects directly to Firebase Cloud Services configured in `app.js`:
 
-```javascript
-const firebaseConfig = {
-  apiKey: "...",
-  authDomain: "anivault-9813c.firebaseapp.com",
-  projectId: "anivault-9813c",
-  storageBucket: "anivault-9813c.firebasestorage.app",
-  messagingSenderId: "402464470619",
-  appId: "1:402464470619:web:55c1a5455f377bb359317e"
-};
-```
-
 ---
 
 ## 👥 Platform Owner & Credits
