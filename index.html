@@ -8,18 +8,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
     <canvas id="live-bg"></canvas>
-    <div class="app-container" style="display: none;">
+    <div class="app-container">
         <!-- Top Navigation -->
         <header class="top-bar">
             <button id="menu-toggle" class="menu-toggle" aria-label="Open Menu">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
             </button>
             <div class="logo">
-                <h1>Ani<span>Vult</span></h1>
+                <h1>Ani<span>Vault</span></h1>
             </div>
             <div class="search-wrapper">
                 <div class="search-container" id="search-container">
@@ -92,7 +92,7 @@
         <!-- Global Bulk Action Panel -->
         <div id="global-bulk-panel" class="hidden" style="position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 100; background: rgba(20,20,20,0.95); border: 1px solid var(--accent-primary); padding: 1rem 1.5rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: opacity 0.3s ease;">
             <div style="color: var(--text-main); font-weight: 600; font-size: 1rem; white-space: nowrap;" id="global-bulk-count">0 Selected</div>
-            <select id="global-bulk-status" class="admin-role-select" style="margin: 0; min-width: 150px;">
+            <select id="global-bulk-status" class="bulk-status-select" style="margin: 0; min-width: 150px;">
                 <option value="" disabled selected>Change Status...</option>
                 <option value="watching">Watching</option>
                 <option value="watched">Watched</option>
@@ -118,7 +118,7 @@
     <div class="login-overlay hidden" id="login-overlay">
         <div class="login-card">
             <div class="login-logo">
-                <h1>Ani<span>Vult</span></h1>
+                <h1>Ani<span>Vault</span></h1>
             </div>
             <p class="login-subtitle" id="login-subtitle">Sign in to track your anime journey.</p>
             
@@ -138,6 +138,7 @@
                 </div>
                 <div id="login-error" class="login-error hidden">Invalid credentials.</div>
                 <button type="submit" class="btn btn-primary login-btn" id="submit-btn">Login</button>
+                <button type="button" class="btn btn-secondary guest-btn" id="guest-btn" style="width: 100%; margin-top: 0.8rem;">Continue as Guest</button>
             </form>
         </div>
     </div>
@@ -146,6 +147,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>
